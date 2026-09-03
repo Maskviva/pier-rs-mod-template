@@ -1,0 +1,31 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo clippy --all-targets -- -D warnings
+
+      - run: cargo build --release --verbose
+
+      # Cargo turns hyphens in the crate name into underscores, so `my-mod` builds
+      # `my_mod.dll`. That name has to match `entry` in manifest.json.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-windows-x64
+          path: |
+            target/release/*.dll
+            manifest.json

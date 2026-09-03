@@ -1,0 +1,14 @@
+[package]
+name = "hello-world"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# The package is pier-rs and the crate it exposes is `levilamina`, so the imports
+# below read `use levilamina::`. Pin the tag to the Pier release you target: the ABI
+# only ever gains slots, but the SDK surface can change between releases.
+pier-rs = { git = "https://github.com/Maskviva/pier", tag = "26.20.1" }

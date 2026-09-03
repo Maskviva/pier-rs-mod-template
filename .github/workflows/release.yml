@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo build --release --verbose
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-windows-x64
+          path: |
+            target/release/*.dll
+            manifest.json
+
+  release-notes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: notes
+        uses: ffurrer2/extract-release-notes@v3
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.notes.outputs.release_notes }}
+
+  upload:
+    needs:
+      - build
+      - release-notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-windows-x64
+          path: artifact
+
+      # A mod installs as mods/<name>/, so the archive holds the dll and the manifest
+      # side by side with no wrapping directory.
+      - name: Flatten and archive
+        shell: bash
+        run: |
+          cp README.md LICENSE artifact/ 2>/dev/null || true
+          if [ -d artifact/target ]; then
+            mv artifact/target/release/*.dll artifact/ && rm -rf artifact/target
+          fi
+          find artifact
+          cd artifact && zip -r ../${{ github.event.repository.name }}-windows-x64.zip .
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ github.event.repository.name }}-windows-x64.zip

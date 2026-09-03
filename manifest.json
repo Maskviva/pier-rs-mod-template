@@ -1,0 +1,10 @@
+{
+    "name": "hello-world",
+    "entry": "hello_world.dll",
+    "type": "pier",
+    "version": "0.1.0",
+    "description": "A starting point for a LeviLamina mod written in Rust.",
+    "dependencies": [
+        { "name": "pier" }
+    ]
+}
