@@ -11,4 +11,4 @@ crate-type = ["cdylib"]
 # The package is pier-rs and the crate it exposes is `levilamina`, so the imports
 # below read `use levilamina::`. Pin the tag to the Pier release you target: the ABI
 # only ever gains slots, but the SDK surface can change between releases.
-pier-rs = { git = "https://github.com/Maskviva/pier", tag = "26.20.1" }
+pier-rs = { git = "https://github.com/Maskviva/pier", tag = "v26.51.2" }
